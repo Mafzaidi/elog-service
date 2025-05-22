@@ -1,0 +1,12 @@
+app:
+  name: "E-log"
+  version: "1.0.0"
+
+server:
+  host: "0.0.0.0"
+  port: 4000
+
+db:
+  host: localhost
+  port: 27017
+  

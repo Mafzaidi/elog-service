@@ -1,0 +1,95 @@
+package http
+
+import (
+	"encoding/json"
+	"net/http"
+	"time"
+
+	"github.com/labstack/echo/v4"
+	"github.com/mafzaidi/elog/config"
+	"github.com/mafzaidi/elog/internal/auth"
+	"github.com/mafzaidi/elog/pkg/response"
+)
+
+type AuthHandler struct {
+	authUC auth.UseCase
+}
+
+func NewAuthHandler(uc auth.UseCase) auth.Handler {
+	return &AuthHandler{
+		authUC: uc,
+	}
+}
+
+func (h *AuthHandler) Register() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		pl := &auth.RegisterPayload{}
+
+		if err := json.NewDecoder(c.Request().Body).Decode(&pl); err != nil {
+			return response.ErrorHandler(c, http.StatusBadRequest, "BadRequest", err.Error())
+		}
+
+		if err := h.authUC.Register(pl); err != nil {
+			return response.ErrorHandler(c, http.StatusInternalServerError, "InternalServerError", err.Error())
+		}
+
+		return response.SuccesHandler(c, &response.Response{
+			Message: "user registered successfully",
+		})
+	}
+}
+
+func (h *AuthHandler) Login(cfg *config.Config) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		pl := &auth.LoginPayload{}
+		if err := json.NewDecoder(c.Request().Body).Decode(&pl); err != nil {
+			return response.ErrorHandler(c, http.StatusBadRequest, "BadRequest", err.Error())
+		}
+
+		var validToken string
+		if cookie, err := c.Cookie("jwt_token"); err == nil {
+			validToken = cookie.Value
+		}
+
+		data, err := h.authUC.Login(pl.Email, pl.Password, validToken, cfg)
+		if err != nil {
+			return response.ErrorHandler(c, http.StatusInternalServerError, "InternalServerError", err.Error())
+		}
+
+		newCookie := new(http.Cookie)
+		newCookie.Name = "jwt_token"
+		newCookie.Value = data.Token
+		// newCookie.HttpOnly = true
+		newCookie.Secure = true
+		newCookie.SameSite = http.SameSiteNoneMode
+		newCookie.Expires = data.Claims.ExpiresAt.Time
+		newCookie.Path = "/"
+
+		c.SetCookie(newCookie)
+
+		resp := &auth.LoginResponse{
+			ID:          data.User.ID,
+			Username:    data.User.Username,
+			Fullname:    data.User.Fullname,
+			PhoneNumber: data.User.Fullname,
+			Email:       data.User.Email,
+			Group:       data.User.Group,
+			CreatedAt:   data.User.CreatedAt,
+			UpdatedAt:   data.User.UpdatedAt,
+			AccessToken: struct {
+				Type      string    `json:"type"`
+				Token     string    `json:"token"`
+				ExpiresAt time.Time `json:"expires_at"`
+			}{
+				Type:      "Bearer",
+				Token:     data.Token,
+				ExpiresAt: data.Claims.ExpiresAt.Time,
+			},
+		}
+
+		return response.SuccesHandler(c, &response.Response{
+			Message: "user login successfully",
+			Data:    resp,
+		})
+	}
+}
