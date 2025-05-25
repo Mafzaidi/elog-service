@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/mafzaidi/elog/internal/account"
 	"github.com/mafzaidi/elog/internal/entities"
@@ -95,6 +96,19 @@ func (u *AccountUC) Store(pl *account.CreateParams) error {
 	return u.repo.Upsert(filter, newAcc)
 }
 
-func (u *AccountUC) UserAccounts(userID primitive.ObjectID) ([]entities.Account, error) {
-	return nil, nil
+func (u *AccountUC) UserAccounts(userID primitive.ObjectID, isActive *bool) ([]entities.Account, error) {
+	filter := bson.M{
+		"userID": userID,
+	}
+
+	if isActive != nil {
+		filter["isActive"] = *isActive
+	}
+
+	accounts, err := u.repo.FindManyByFilter(filter)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch accounts: %w", err)
+	}
+
+	return accounts, nil
 }

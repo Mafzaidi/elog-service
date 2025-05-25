@@ -61,3 +61,72 @@ func (h *AccountHandler) Create() echo.HandlerFunc {
 		})
 	}
 }
+
+func (h *AccountHandler) FilterUsersAccounts() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		pl := account.FilterUsersAccountsPayload{}
+		requestedUserID, err := utils.ToObjectID(c.Param("user_id"))
+
+		if err != nil || requestedUserID == primitive.NilObjectID {
+			msg := fmt.Errorf("invalid user_id param: %v", err)
+			return response.ErrorHandler(c, http.StatusBadRequest, "BadRequest", msg.Error())
+		}
+
+		if err := c.Bind(&pl); err != nil {
+			return response.ErrorHandler(c, http.StatusBadRequest, "BadRequest", err.Error())
+		}
+
+		claims := middleware.GetUserFromContext(c)
+		if claims == nil {
+			return response.ErrorHandler(c, http.StatusUnauthorized, "Unauthorized", "token is invalid")
+		}
+
+		authenticatedUserID, err := utils.ToObjectID(claims.UserID)
+		if err != nil || authenticatedUserID == primitive.NilObjectID {
+			msg := fmt.Errorf("invalid token user ID: %v", err)
+			return response.ErrorHandler(c, http.StatusBadRequest, "Unauthorized", msg.Error())
+		}
+
+		if requestedUserID != authenticatedUserID {
+			return response.ErrorHandler(c, http.StatusForbidden, "Forbidden", "you are not allowed to access this resource")
+		}
+
+		data, err := h.accountUC.UserAccounts(authenticatedUserID, pl.IsActive)
+		if err != nil {
+			return response.ErrorHandler(c, http.StatusNotFound, "NotFound", err.Error())
+		}
+
+		var resp []account.FilterUsersAccountsResponse
+		for _, d := range data {
+			resp = append(resp, account.FilterUsersAccountsResponse{
+				ID:     d.ID.Hex(),
+				UserID: d.UserID.Hex(),
+				Service: struct {
+					ID   string `json:"id"`
+					Code string `json:"code"`
+					Key  string `json:"key"`
+					Name string `json:"name"`
+				}{
+					ID:   d.Service.ID.Hex(),
+					Code: d.Service.Code,
+					Key:  d.Service.Key,
+					Name: d.Service.Name,
+				},
+				Username:          d.Username,
+				PasswordEncrypted: d.PasswordEncrypted,
+				Salt:              d.Salt,
+				Host:              d.Host,
+				Notes:             d.Notes,
+				IsActive:          d.IsActive,
+				CreatedAt:         d.CreatedAt,
+				UpdatedAt:         d.UpdatedAt,
+			})
+		}
+
+		return response.SuccesHandler(c, &response.Response{
+			Message: "OK",
+			Data:    resp,
+		})
+
+	}
+}
