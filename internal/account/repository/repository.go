@@ -51,9 +51,11 @@ func (r *AccountRepository) Upsert(filter bson.M, account *entities.Account) err
 			"host":              m.Host,
 			"notes":             m.Notes,
 			"updatedAt":         time.Now(),
+			"isActive":          m.IsActive,
 		},
 		"$setOnInsert": bson.M{
 			"_id":       primitive.NewObjectID(),
+			"userID":    m.UserID,
 			"createdAt": time.Now(),
 		},
 	}
@@ -96,7 +98,7 @@ func (r *AccountRepository) FindByFilter(filter bson.M) (*entities.Account, erro
 	err := r.Collection.FindOne(ctx, filter).Decode(&m)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, errors.New("service not found")
+			return nil, errors.New("account not found")
 		}
 		return nil, err
 	}
@@ -104,6 +106,37 @@ func (r *AccountRepository) FindByFilter(filter bson.M) (*entities.Account, erro
 	account := toEntity(m)
 
 	return account, nil
+}
+
+func (r *AccountRepository) FindManyByFilter(filter bson.M) ([]entities.Account, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var es []entities.Account
+	if filter == nil {
+		filter = bson.M{}
+	}
+
+	csr, err := r.Collection.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer csr.Close(ctx)
+
+	for csr.Next(ctx) {
+		var m models.Account
+		if err := csr.Decode(&m); err != nil {
+			return nil, err
+		}
+		es = toEntities(es, m)
+	}
+
+	if err := csr.Err(); err != nil {
+		return nil, err
+	}
+
+	accounts := es
+	return accounts, nil
 }
 
 func toEntity(m *models.Account) *entities.Account {
@@ -125,6 +158,28 @@ func toEntity(m *models.Account) *entities.Account {
 		CreatedAt:         m.CreatedAt,
 		UpdatedAt:         m.UpdatedAt,
 	}
+}
+
+func toEntities(es []entities.Account, m models.Account) []entities.Account {
+	es = append(es, entities.Account{
+		ID:     m.ID,
+		UserID: m.UserID,
+		Service: struct {
+			ID   primitive.ObjectID `json:"id,omitempty"`
+			Code string             `json:"code"`
+			Key  string             `json:"key"`
+			Name string             `json:"name"`
+		}(m.Service),
+		Username:          m.Username,
+		PasswordEncrypted: m.PasswordEncrypted,
+		Salt:              m.Salt,
+		Host:              m.Host,
+		Notes:             m.Notes,
+		IsActive:          m.IsActive,
+		CreatedAt:         m.CreatedAt,
+		UpdatedAt:         m.UpdatedAt,
+	})
+	return es
 }
 
 func toModel(e *entities.Account) *models.Account {

@@ -18,7 +18,9 @@ import (
 	menurepo "github.com/mafzaidi/elog/internal/menu/repository"
 	menuuc "github.com/mafzaidi/elog/internal/menu/usecase"
 	"github.com/mafzaidi/elog/internal/server/middleware"
+	servicehttp "github.com/mafzaidi/elog/internal/service/delivery/http"
 	servicerepo "github.com/mafzaidi/elog/internal/service/repository"
+	serviceuc "github.com/mafzaidi/elog/internal/service/usecase"
 	userhttp "github.com/mafzaidi/elog/internal/user/delivery/http"
 	userrepo "github.com/mafzaidi/elog/internal/user/repository"
 	useruc "github.com/mafzaidi/elog/internal/user/usecase"
@@ -41,36 +43,45 @@ func (s *Server) MapHandlers(e *echo.Echo) error {
 	private.Use(middleware.JWTAuthMiddleware)
 	menus := private.Group("/menus")
 	users := private.Group("/users")
+	services := private.Group("/services")
 	accounts := private.Group("/accounts")
 
 	eventRepo := eventrepo.NewEventRepository(s.db.DB)
-	eventUC := eventuc.NewEventUseCase(eventRepo)
-	eventHandler := eventhttp.NewEventHandler(eventUC)
-	eventhttp.MapRoutes(events, eventHandler)
-
 	authRepo := authrepo.NewAuthRepository(s.db.DB)
-	authUC := authuc.NewAuthUseCase(authRepo)
-	authHandler := authhttp.NewAuthHandler(authUC)
-	authhttp.MapRoutes(auth, authHandler, s.cfg)
-
-	menuRepo := menurepo.NewMenuRepository(s.db.DB)
-	menuUC := menuuc.NewMenuUseCase(menuRepo)
-	menuHandler := menuhttp.NewMenuHandler(menuUC)
-	menuhttp.MapRoutes(menus, menuHandler)
-
 	userRepo := userrepo.NewUserRepository(s.db.DB)
-	userUC := useruc.NewUserUseCase(userRepo)
-	userHandler := userhttp.NewUserHandler(userUC)
-	userhttp.MapRoutes(users, userHandler)
-
+	menuRepo := menurepo.NewMenuRepository(s.db.DB)
 	serviceRepo := servicerepo.NewServiceRespository(s.db.DB)
-
 	accountRepo := accountrepo.NewAccountRepository(s.db.DB)
+
+	eventUC := eventuc.NewEventUseCase(eventRepo)
+	authUC := authuc.NewAuthUseCase(authRepo)
+	menuUC := menuuc.NewMenuUseCase(menuRepo)
+	userUC := useruc.NewUserUseCase(userRepo)
+	serviceUC := serviceuc.NewServiceUseCase(
+		serviceRepo,
+		accountRepo,
+	)
 	accountUC := accountuc.NewAccountUseCase(
 		accountRepo,
 		serviceRepo,
 		userRepo,
 	)
+
+	eventHandler := eventhttp.NewEventHandler(eventUC)
+	eventhttp.MapRoutes(events, eventHandler)
+
+	authHandler := authhttp.NewAuthHandler(authUC)
+	authhttp.MapRoutes(auth, authHandler, s.cfg)
+
+	menuHandler := menuhttp.NewMenuHandler(menuUC)
+	menuhttp.MapRoutes(menus, menuHandler)
+
+	userHandler := userhttp.NewUserHandler(userUC)
+	userhttp.MapRoutes(users, userHandler)
+
+	serviceHandler := servicehttp.NewServiceHandler(serviceUC)
+	servicehttp.MapRoutes(services, serviceHandler)
+
 	accountHandler := accounthttp.NewAccountHandler(accountUC)
 	accounthttp.MapRoutes(accounts, accountHandler)
 

@@ -89,7 +89,7 @@ func (u *AccountUC) Store(pl *account.CreateParams) error {
 		Salt:              encPwd.EncodedSalt,
 		Host:              pl.Host,
 		Notes:             pl.Notes,
-		IsActive:          true,
+		IsActive:          *pl.IsActive,
 	}
 
 	return u.repo.Upsert(filter, newAcc)

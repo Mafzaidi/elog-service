@@ -1,14 +1,12 @@
 package utils
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
-func ToObjectID(hex string) (*primitive.ObjectID, error) {
+func ToObjectID(hex string) (primitive.ObjectID, error) {
 	if hex == "" {
-		return nil, nil
+		return primitive.NilObjectID, nil
 	}
-	id, err := primitive.ObjectIDFromHex(hex)
-	if err != nil {
-		return nil, err
-	}
-	return &id, nil
+	return primitive.ObjectIDFromHex(hex)
 }

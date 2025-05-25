@@ -10,4 +10,6 @@ type Repository interface {
 	Create(account *entities.Account) error
 	Upsert(filter bson.M, account *entities.Account) error
 	FindByID(id primitive.ObjectID) (*entities.Account, error)
+	FindByFilter(filter bson.M) (*entities.Account, error)
+	FindManyByFilter(filter bson.M) ([]entities.Account, error)
 }

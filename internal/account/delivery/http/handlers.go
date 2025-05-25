@@ -10,6 +10,7 @@ import (
 	"github.com/mafzaidi/elog/internal/server/middleware"
 	"github.com/mafzaidi/elog/pkg/response"
 	"github.com/mafzaidi/elog/pkg/utils"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type AccountHandler struct {
@@ -35,19 +36,20 @@ func (h *AccountHandler) Create() echo.HandlerFunc {
 		}
 
 		userIDObj, err := utils.ToObjectID(claims.UserID)
-		if err != nil {
+		if err != nil || userIDObj == primitive.NilObjectID {
 			msg := fmt.Errorf("objectID format is not valid: %v", userIDObj)
-			return response.ErrorHandler(c, http.StatusBadRequest, "Unauthorized", msg.Error())
+			return response.ErrorHandler(c, http.StatusBadRequest, "BadRequest", msg.Error())
 		}
 
 		params := &account.CreateParams{
-			UserID:      *userIDObj,
+			UserID:      userIDObj,
 			PasswordApp: pl.PasswordApp,
 			Username:    pl.Username,
 			Password:    pl.Password,
 			Host:        pl.Host,
 			Notes:       pl.Notes,
 			Service:     pl.Service,
+			IsActive:    pl.IsActive,
 		}
 
 		if err := h.accountUC.Store(params); err != nil {

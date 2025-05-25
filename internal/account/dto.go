@@ -9,6 +9,7 @@ type CreatePayload struct {
 	Notes       string `json:"notes"`
 	Service     string `json:"service"`
 	PasswordApp string `json:"password_app"`
+	IsActive    *bool  `json:"is_active"`
 }
 
 type CreateParams struct {
@@ -19,6 +20,7 @@ type CreateParams struct {
 	Host        string
 	Notes       string
 	Service     string
+	IsActive    *bool
 }
 
 type ServiceParams struct {

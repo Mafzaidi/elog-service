@@ -9,7 +9,7 @@ import (
 type (
 	Response struct {
 		Status  *StatusInfo `json:"status"`
-		Message string      `json:"message"`
+		Message string      `json:"message,omitempty"`
 		Meta    interface{} `json:"meta,omitempty"`
 		Data    interface{} `json:"data,omitempty"`
 		Error   string      `json:"error,omitempty"`
