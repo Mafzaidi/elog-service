@@ -6,6 +6,6 @@ import (
 )
 
 func MapRoutes(g *echo.Group, h account.Handler) {
-	g.POST("/store", h.Create())
+	g.POST("", h.Create())
 	g.GET("/:user_id", h.FilterUsersAccounts())
 }
