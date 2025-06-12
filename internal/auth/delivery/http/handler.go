@@ -93,3 +93,23 @@ func (h *AuthHandler) Login(cfg *config.Config) echo.HandlerFunc {
 		})
 	}
 }
+
+func (h *AuthHandler) Logout() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		expiredCookie := &http.Cookie{
+			Name:     "jwt_token",
+			Value:    "",
+			Path:     "/",
+			Expires:  time.Unix(0, 0),
+			MaxAge:   -1,
+			Secure:   true,
+			HttpOnly: true,
+			SameSite: http.SameSiteNoneMode,
+		}
+		c.SetCookie(expiredCookie)
+
+		return response.SuccesHandler(c, &response.Response{
+			Message: "user logged out successfully",
+		})
+	}
+}
