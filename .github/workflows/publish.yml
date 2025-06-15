@@ -7,6 +7,7 @@ on:
       - 'v*'
 
 env:
+  # Image destination (set langsung)
   REGISTRY: registry.zenservice.my.id
   IMAGE_NAME: elog_service
 
@@ -23,19 +24,12 @@ jobs:
       with:
         go-version: '1.23'
 
-    - name: Read .env
-      run: |
-        echo "Loading .env"
-        set -o allexport
-        source .env
-        set +o allexport
-
     - name: Build Go binary
       run: |
         mkdir -p bin
         go build -ldflags "-s -w" -o bin/${{ env.IMAGE_NAME }} ./cmd/api
 
-    - name: Set image version
+    - name: Set image version and commit hash
       id: vars
       run: |
         TAG=$(git describe --tags --abbrev=0 || echo "0.0.0")
