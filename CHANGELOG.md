@@ -1,3 +1,9 @@
+## 0.9.3 (2025-06-15)
+
+### Fix
+
+- **publish.yml**: remove read .env process
+
 ## 0.9.2 (2025-06-15)
 
 ### Feat
