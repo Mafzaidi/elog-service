@@ -74,14 +74,12 @@ func GetConfig() *Config {
 
 		_ = godotenv.Load()
 
-		// Override from environment (fallbacks for sensitive values)
 		cfg.DB.User = getEnvOrDefault("MONGO_USER", cfg.DB.User)
 		cfg.DB.Password = getEnvOrDefault("MONGO_PASSWORD", cfg.DB.Password)
 		cfg.DB.DBName = getEnvOrDefault("MONGO_DB_NAME", cfg.DB.DBName)
 
 		cfg.JWT.Secret = getEnvOrDefault("JWT_SECRET", cfg.JWT.Secret)
 
-		// Parse token durations (viper reads string by default)
 		if s := viper.GetString("jwt.tokenExpiry"); s != "" {
 			cfg.JWT.TokenExpiry, _ = time.ParseDuration(s)
 		}
