@@ -1,3 +1,9 @@
+## 0.9.2 (2025-06-15)
+
+### Feat
+
+- add github action workflow
+
 ## 0.9.1 (2025-06-15)
 
 ### Feat
