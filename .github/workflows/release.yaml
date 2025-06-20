@@ -9,7 +9,7 @@ on:
 env:
   # Image destination (set langsung)
   REGISTRY: registry.zenservice.my.id
-  IMAGE_NAME: elog-service
+  IMAGE_NAME: devops/elog-service
 
 jobs:
   build:
