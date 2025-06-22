@@ -1,3 +1,15 @@
+## 0.9.4 (2025-06-22)
+
+### Feat
+
+- remove v tag prefix
+- add devops path in image name
+- update pusblish workflow
+
+### Fix
+
+- change app name
+
 ## 0.9.3 (2025-06-15)
 
 ### Fix
