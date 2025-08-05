@@ -1,3 +1,9 @@
+## 0.9.5 (2025-08-05)
+
+### Feat
+
+- add run and clean command to makefiel
+
 ## 0.9.4 (2025-06-22)
 
 ### Feat
