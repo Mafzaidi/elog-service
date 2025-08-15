@@ -9,4 +9,5 @@ type Handler interface {
 	Register() echo.HandlerFunc
 	Login(cfg *config.Config) echo.HandlerFunc
 	Logout() echo.HandlerFunc
+	GetCurrentUser() echo.HandlerFunc
 }

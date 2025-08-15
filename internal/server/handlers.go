@@ -37,7 +37,7 @@ func (s *Server) MapHandlers(e *echo.Echo) error {
 	v1 := e.Group("/api/v1")
 	health := v1.Group("/health")
 	events := v1.Group("/events")
-	auth := v1.Group("/auth")
+	authPublic := v1.Group("/auth")
 
 	private := e.Group("/private/api/v1")
 	private.Use(middleware.JWTAuthMiddleware)
@@ -45,6 +45,7 @@ func (s *Server) MapHandlers(e *echo.Echo) error {
 	users := private.Group("/users")
 	services := private.Group("/services")
 	accounts := private.Group("/accounts")
+	authPrivate := private.Group("/auth")
 
 	eventRepo := eventrepo.NewEventRepository(s.db.DB)
 	authRepo := authrepo.NewAuthRepository(s.db.DB)
@@ -71,7 +72,8 @@ func (s *Server) MapHandlers(e *echo.Echo) error {
 	eventhttp.MapRoutes(events, eventHandler)
 
 	authHandler := authhttp.NewAuthHandler(authUC)
-	authhttp.MapRoutes(auth, authHandler, s.cfg)
+	authhttp.MapPublicRoutes(authPublic, authHandler, s.cfg)
+	authhttp.MapPrivateRoutes(authPrivate, authHandler)
 
 	menuHandler := menuhttp.NewMenuHandler(menuUC)
 	menuhttp.MapRoutes(menus, menuHandler)

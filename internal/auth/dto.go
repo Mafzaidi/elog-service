@@ -36,3 +36,12 @@ type (
 		} `json:"access_token"`
 	}
 )
+
+type GetCurrentUserResponse struct {
+	ID          primitive.ObjectID `json:"id"`
+	Username    string             `json:"username"`
+	Fullname    string             `json:"full_name"`
+	PhoneNumber string             `json:"phone_number"`
+	Email       string             `json:"email"`
+	Group       string             `json:"group"`
+}

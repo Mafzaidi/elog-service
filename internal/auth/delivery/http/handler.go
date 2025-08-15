@@ -2,13 +2,16 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/mafzaidi/elog/config"
 	"github.com/mafzaidi/elog/internal/auth"
+	"github.com/mafzaidi/elog/internal/server/middleware"
 	"github.com/mafzaidi/elog/pkg/response"
+	"github.com/mafzaidi/elog/pkg/utils"
 )
 
 type AuthHandler struct {
@@ -89,6 +92,36 @@ func (h *AuthHandler) Login(cfg *config.Config) echo.HandlerFunc {
 
 		return response.SuccesHandler(c, &response.Response{
 			Message: "user login successfully",
+			Data:    resp,
+		})
+	}
+}
+
+func (h *AuthHandler) GetCurrentUser() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		claims := middleware.GetUserFromContext(c)
+		authenticatedUserID, err := utils.ToObjectID(claims.UserID)
+		if err != nil {
+			msg := fmt.Errorf("invalid token user ID: %v", err)
+			return response.ErrorHandler(c, http.StatusBadRequest, "Unauthorized", msg.Error())
+		}
+
+		data, err := h.authUC.User(authenticatedUserID)
+		if err != nil {
+			return response.ErrorHandler(c, http.StatusNotFound, "DataNotFound", err.Error())
+		}
+
+		resp := &auth.GetCurrentUserResponse{
+			ID:          data.ID,
+			Username:    data.Username,
+			Fullname:    data.Fullname,
+			PhoneNumber: data.PhoneNumber,
+			Email:       data.Email,
+			Group:       data.Group,
+		}
+
+		return response.SuccesHandler(c, &response.Response{
+			Message: "fetch user data successfully",
 			Data:    resp,
 		})
 	}

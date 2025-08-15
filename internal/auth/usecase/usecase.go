@@ -14,6 +14,7 @@ import (
 	"github.com/mafzaidi/elog/pkg/authorizer/masterkey"
 	"github.com/mafzaidi/elog/pkg/authorizer/pwd"
 	"github.com/mafzaidi/elog/pkg/authorizer/token"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type UserToken struct {
@@ -134,4 +135,14 @@ func (u *AuthUC) Login(email, password, validToken string, cfg *config.Config) (
 
 func (u *AuthUC) ConfirmPassword(userID string, password string) error {
 	return nil
+}
+
+func (u *AuthUC) User(ID primitive.ObjectID) (*entities.User, error) {
+
+	user, err := u.repo.FindByID(ID)
+	if err != nil {
+		return nil, errors.New("user not found")
+	}
+
+	return user, nil
 }
