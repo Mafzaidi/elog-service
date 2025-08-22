@@ -8,8 +8,8 @@ on:
 
 env:
   # Image destination (set langsung)
-  REGISTRY: registry.zenservice.my.id
-  IMAGE_NAME: devops/elog-service
+  REGISTRY: docker.io
+  IMAGE_NAME: mafzaidi93/elog-service
 
 jobs:
   build:
@@ -30,7 +30,7 @@ jobs:
     - name: Build Go binary
       run: |
         mkdir -p bin
-        go build -ldflags "-s -w" -o bin/${{ env.IMAGE_NAME }} ./cmd/api
+        go build -ldflags "-s -w" -o bin/elog-service ./cmd/api
 
     - name: Set image version and commit hash
       id: vars
@@ -41,7 +41,7 @@ jobs:
         echo "commit=$COMMIT" >> $GITHUB_OUTPUT
 
     - name: Log in to Docker registry
-      run: echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login ${{ env.REGISTRY }} -u "${{ secrets.REGISTRY_USERNAME }}" --password-stdin
+      run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login ${{ env.REGISTRY }} -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
     - name: Build Docker image
       run: |
