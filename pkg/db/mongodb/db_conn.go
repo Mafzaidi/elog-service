@@ -24,14 +24,15 @@ var (
 func NewMongoDB(conf *config.Config) (*MongoDatabase, error) {
 	once.Do(func() {
 		dsn := fmt.Sprintf(
-			"mongodb://%s:%d",
+			"mongodb://%s:%s",
 			conf.DB.Host,
 			conf.DB.Port,
 		)
-
+		fmt.Println(dsn)
 		cred := options.Credential{
-			Username: conf.DB.User,
-			Password: conf.DB.Password,
+			Username:   conf.DB.User,
+			Password:   conf.DB.Password,
+			AuthSource: conf.DB.DBName,
 		}
 
 		clientOpt := options.Client().ApplyURI(dsn).SetAuth(cred)

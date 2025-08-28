@@ -30,7 +30,7 @@ type (
 
 	DB struct {
 		Host     string
-		Port     int
+		Port     string
 		User     string
 		Password string
 		DBName   string
@@ -74,6 +74,8 @@ func GetConfig() *Config {
 
 		_ = godotenv.Load()
 
+		cfg.DB.Host = getEnvOrDefault("MONGO_DB_HOST", cfg.DB.Host)
+		cfg.DB.Port = getEnvOrDefault("MONGO_DB_PORT", cfg.DB.Port)
 		cfg.DB.User = getEnvOrDefault("MONGO_USER", cfg.DB.User)
 		cfg.DB.Password = getEnvOrDefault("MONGO_PASSWORD", cfg.DB.Password)
 		cfg.DB.DBName = getEnvOrDefault("MONGO_DB_NAME", cfg.DB.DBName)
