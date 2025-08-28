@@ -1,3 +1,14 @@
+## 0.9.6 (2025-08-28)
+
+### Feat
+
+- add me api endpoint to fetch current user
+
+### Fix
+
+- adjust mongodb connection
+- change github action workflow
+
 ## 0.9.5 (2025-08-05)
 
 ### Feat
