@@ -64,7 +64,7 @@ jobs:
         path: manifests
     
     - name: List structure
-      run: ls -
+      run: ls -R
 
     - name: Update Helm Chart version
       run: |
