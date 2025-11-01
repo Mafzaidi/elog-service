@@ -55,3 +55,25 @@ jobs:
       run: |
         docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.tag }}
         docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+    
+    - name: Checkout manifest repo
+      uses: actions/checkout@v4
+      with:
+        repository: mafzaidi/elog-service-manifests
+        token: ${{ secrets.GH_PAT }}
+
+    - name: Update Helm Chart version
+      run: |
+        cd manifests/charts/elog
+        yq e -i ".appVersion = \"${VERSION}\"" Chart.yaml
+        yq e -i ".version = \"${VERSION}\"" Chart.yaml
+        yq e -i ".image.tag = \"${VERSION}\"" values.yaml
+
+    - name: Commit and push changes
+      run: |
+        cd manifests
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add .
+        git commit -m "chore: update appVersion to ${VERSION}"
+        git push
