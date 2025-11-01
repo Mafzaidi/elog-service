@@ -69,9 +69,8 @@ jobs:
     - name: Update Helm Chart version
       run: |
         cd manifests
-        yq e -i ".appVersion = \"${VERSION}\"" Chart.yaml
-        yq e -i ".version = \"${VERSION}\"" Chart.yaml
-        yq e -i ".image.tag = \"${VERSION}\"" values.yaml
+        yq e -i ".appVersion = \"${steps.vars.outputs.tag}\"" Chart.yaml
+        yq e -i ".image.tag = \"${steps.vars.outputs.tag}\"" values.yaml
 
     - name: Commit and push changes
       run: |
@@ -79,5 +78,5 @@ jobs:
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
         git add .
-        git commit -m "chore: update appVersion to ${VERSION}"
+        git commit -m "chore: update appVersion to ${steps.vars.outputs.tag}"
         git push
