@@ -1,3 +1,9 @@
+## 0.9.8 (2025-11-01)
+
+### Fix
+
+- update release github action to update manifest repo automatically
+
 ## 0.9.7 (2025-11-01)
 
 ### Fix
