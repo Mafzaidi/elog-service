@@ -1,3 +1,9 @@
+## 0.9.7 (2025-11-01)
+
+### Fix
+
+- update gitignore and fix login response status
+
 ## 0.9.6 (2025-08-28)
 
 ### Feat
