@@ -1,3 +1,9 @@
+## 0.9.9 (2025-11-01)
+
+### Fix
+
+- fix repo manifest name in release action
+
 ## 0.9.8 (2025-11-01)
 
 ### Fix
