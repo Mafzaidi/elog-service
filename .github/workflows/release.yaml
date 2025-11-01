@@ -61,6 +61,10 @@ jobs:
       with:
         repository: Mafzaidi/elog-service-manifest
         token: ${{ secrets.GH_PAT }}
+        path: manifests
+    
+    - name: List structure
+      run: ls -
 
     - name: Update Helm Chart version
       run: |
