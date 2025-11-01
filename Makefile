@@ -12,13 +12,13 @@ BUILD_TIME := $(shell date -u '+%Y-%m-%d_%H:%M:%S')
 
 build:
 	go mod tidy
-	go build -ldflags "-X main.Version=$(VERSION) -X main.Commit=$(COMMIT) -X main.BuildTime=$(BUILD_TIME)" -o $(APP_NAME) ./cmd/api
+	go build -ldflags "-X main.Version=$(VERSION) -X main.Commit=$(COMMIT) -X main.BuildTime=$(BUILD_TIME)" -o ./bin/app/$(APP_NAME) ./cmd/api
 
 run: build
-	./$(APP_NAME)
+	./bin/app/$(APP_NAME)
 
 clean:
-	rm -f $(APP_NAME)
+	rm -f ./bin/app/$(APP_NAME)
 	
 docker-build:
 	docker build \

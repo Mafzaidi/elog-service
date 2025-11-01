@@ -56,7 +56,7 @@ func (h *AuthHandler) Login(cfg *config.Config) echo.HandlerFunc {
 
 		data, err := h.authUC.Login(pl.Email, pl.Password, validToken, cfg)
 		if err != nil {
-			return response.ErrorHandler(c, http.StatusInternalServerError, "InternalServerError", err.Error())
+			return response.ErrorHandler(c, http.StatusBadRequest, "BadRequest", err.Error())
 		}
 
 		newCookie := new(http.Cookie)
