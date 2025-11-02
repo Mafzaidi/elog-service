@@ -71,9 +71,9 @@ jobs:
         cd manifests
         TAG=${{ steps.vars.outputs.tag }}
         echo "Updating chart version to ${TAG}"
-        yq e -i ".appVersion = \"${steps.vars.outputs.tag}\"" Chart.yaml
+        yq e -i ".appVersion = \"${TAG}\"" Chart.yaml
         yq e -i ".version = \"${TAG}\"" Chart.yaml
-        yq e -i ".image.tag = \"${steps.vars.outputs.tag}\"" values.yaml
+        yq e -i ".image.tag = \"${TAG}\"" values.yaml
 
     - name: Commit and push changes
       run: |
